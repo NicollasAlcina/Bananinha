@@ -1,119 +1,121 @@
-<!-- 
- Programa: Movimento do quadradado
- Nome: Gabriel Santos Pirez n°12 Turma:2L
- Nome: Miguel Reny Arduini Martir n°19 Turma: 2L
- Nome: Nicollas Augusto dos Santos Silva n°21 Turma: 2L
- Nome: Raul Dias de Oliveira n°23 Turma: 2L
- Nome: Rennan Proença Jung Dias de Oliveira n°24 Turma:2L
+<!--
+Programa: Componente Móvel no Canvas
+Nome: Gabriel Santos Pires - Nº: 12 - Turma: A
+Nome: Miguel Reny - Nº: 19 - Turma: A
+Nome: Nicollas Augusto dos Santos Silva - Nº: 21 - Turma: A
+Nome: Raul Dias - Nº: 23 - Turma: A
+Nome: Renan Proença - Nº: 24 - Turma: A
+DESCRIÇÃO: Este programa cria um componente interativo em um canvas que pode ser controlado pelos botões de direção, com um layout que simula um joystick.
 -->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movimento do Quadrado</title>
+    <title>Projeto Canvas com Movimento</title>
     <style>
         body {
-            background-color: black; /* Fundo branco para a página */
-            color: black;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         canvas {
             border: 1px solid black;
-            background-color: white; /* Fundo branco para o canvas */
+            margin-left: 20px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-left: 20px;
+        }
+        .controls-row {
+            display: flex;
         }
         button {
+            padding: 10px;
             margin: 5px;
-        }
-        h1{
-            color: white;
-            font-family:Arial;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Pressione Iniciar antes de mexer o quadrado</h1>
-    <canvas id="myCanvas" width="400" height="400"></canvas>
-    <br>
-    <button id="up">Cima</button>
-    <button id="down">Baixo</button>
-    <button id="left">Esquerda</button>
-    <button id="right">Direita</button>
-    <button id="start">Iniciar</button>
-    <button id="stop">Parar</button>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <div class="controls-row">
+            <button id="upButton">▲</button>
+        </div>
+        <div class="controls-row">
+            <button id="leftButton">◄</button>
+            <button id="downButton">▼</button>
+            <button id="rightButton">►</button>
+        </div>
+    </div>
 
     <script>
-        const canvas = document.getElementById('myCanvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        let x = 200, y = 200;
-        let dx = 0, dy = 0;
-        let isMoving = false;
-        let isStarted = false; // Para controlar o estado de "Iniciar" e "Parar"
 
-        // Desenha o componente e preenche o fundo do canvas com branco
+        let x = canvas.width / 2;
+        let y = canvas.height / 2;
+        const componentSize = 20;
+        let dx = 0;
+        let dy = 0;
+        let moving = false;
+
         function drawComponent() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'white'; // Preenche o fundo do canvas com branco
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'blue'; // Preenche o quadrado com azul
-            ctx.fillRect(x, y, 50, 50);
+            ctx.fillStyle = '#3498db'; // Cor azul para tornar o componente mais amigável
+            ctx.fillRect(x, y, componentSize, componentSize);
         }
 
-        function startMoving() {
-            if (!isStarted) return; // Apenas move se o botão de "Iniciar" tiver sido pressionado
-            isMoving = true;
-            moveComponent();
-        }
-
-        function stopMoving() {
-            isMoving = false;
-            dx = 0;
-            dy = 0;
-        }
-
-        // Função que move o componente
-        function moveComponent() {
-            if (isMoving) {
+        function updatePosition() {
+            if (moving) {
                 x += dx;
                 y += dy;
-
-                // Impede que o quadrado saia do canvas
                 if (x < 0) x = 0;
+                if (x > canvas.width - componentSize) x = canvas.width - componentSize;
                 if (y < 0) y = 0;
-                if (x + 50 > canvas.width) x = canvas.width - 50;
-                if (y + 50 > canvas.height) y = canvas.height - 50;
-
+                if (y > canvas.height - componentSize) y = canvas.height - componentSize;
                 drawComponent();
-                requestAnimationFrame(moveComponent);
             }
+            requestAnimationFrame(updatePosition);
         }
 
-        // Configura os controles de direção
-        document.getElementById('up').onmousedown = () => { if (isStarted) { dx = 0; dy = -2; startMoving(); } };
-        document.getElementById('down').onmousedown = () => { if (isStarted) { dx = 0; dy = 2; startMoving(); } };
-        document.getElementById('left').onmousedown = () => { if (isStarted) { dx = -2; dy = 0; startMoving(); } };
-        document.getElementById('right').onmousedown = () => { if (isStarted) { dx = 2; dy = 0; startMoving(); } };
+        document.getElementById('leftButton').addEventListener('mousedown', () => {
+            dx = -2;
+            moving = true;
+        });
 
-        // Para o movimento ao soltar o botão
-        document.getElementById('up').onmouseup = stopMoving;
-        document.getElementById('down').onmouseup = stopMoving;
-        document.getElementById('left').onmouseup = stopMoving;
-        document.getElementById('right').onmouseup = stopMoving;
+        document.getElementById('rightButton').addEventListener('mousedown', () => {
+            dx = 2;
+            moving = true;
+        });
 
-        // Controle do botão "Iniciar"
-        document.getElementById('start').onclick = () => {
-            isStarted = true;
-            isMoving = true;
-            moveComponent();
-        };
+        document.getElementById('upButton').addEventListener('mousedown', () => {
+            dy = -2;
+            moving = true;
+        });
 
-        // Controle do botão "Parar"
-        document.getElementById('stop').onclick = () => {
-            isStarted = false;
-            isMoving = false;
-            stopMoving();
-        };
+        document.getElementById('downButton').addEventListener('mousedown', () => {
+            dy = 2;
+            moving = true;
+        });
 
-        drawComponent(); // Desenha o componente inicialmente
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mouseup', () => {
+                dx = 0;
+                dy = 0;
+                moving = false;
+            });
+        });
+
+        drawComponent();
+        updatePosition();
     </script>
 </body>
 </html>
